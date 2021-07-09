@@ -5,7 +5,6 @@
 		require"tema/default/index.php";
 		
 	}else{
-		
 		require"tema/default/sitekapali.php";
 	}
 ?>
