@@ -1,0 +1,111 @@
+<div class="content">
+<?php
+if($_SESSION["uye_yetki"]<2 ){
+	$duzenlesorgusql="Select * from hakkimda";
+	$duzenlesorgu=mysqli_query($baglan,$duzenlesorgusql);
+	$duzenlesatir=mysqli_fetch_array($duzenlesorgu);
+	if($_POST){
+		$hakkimda_baslik=$_POST["hakkimda_baslik"];
+		$hakkimda_aciklama=htmlspecialchars(strip_tags($_POST["hakkimda_aciklama"]), ENT_QUOTES);
+				/*hakkimda fotoğrafı*/
+				if(is_uploaded_file($_FILES["dosya1"]["tmp_name"])){
+					
+					$dosya1=pathinfo($_FILES["dosya1"]["name"]);
+					$uzanti1=$dosya1["extension"];
+				if($uzanti1=="png" || $uzanti1=="PNG" || $uzanti1=="jpg" || $uzanti1=="JPG" || $uzanti1=="jpeg" ||$uzanti1=="JPEG" )
+				{
+					$hakkimda_foto=str_replace(" ","_",OzelKarakterTemizle($hakkimda_baslik))."_foto_".uniqid(true);
+					$yenikonum1="upload/hakkimda/".$hakkimda_foto.".".$uzanti1;
+					if(move_uploaded_file($_FILES["dosya1"]["tmp_name"], $yenikonum1)){
+				
+						$yeniadresi=$hakkimda_foto.".".$uzanti1;
+					
+					}else{
+						message("warning","exclamation-triangle"," Başarısız", "Hakkımda fotoğrafı yüklenemedi!!");
+					}
+				}else{
+					message("warning","exclamation-triangle"," Hatalı", "Lütfen Hakkımda görseli için JPG, JPEG ve PNG şeklinde dosya yükleyiniz.");
+				}
+				}else{
+					$yeniadresi=$duzenlesatir["hakkimda_gorsel"];
+				}
+				
+		$guncellesql="UPDATE hakkimda SET hakkimda_baslik='$hakkimda_baslik', hakkimda_aciklama='$hakkimda_aciklama', 
+		hakkimda_gorsel='$yeniadresi'";
+		$guncellesorgu=mysqli_query($baglan,$guncellesql);
+		
+		if($guncellesorgu){
+			
+			//Sistem Kayıt Kodu
+			$aciklama="Hakkımda bölümü güncellendi.";
+			$sistemkayitsql="INSERT INTO sistemkayitlari SET aciklama='$aciklama',
+			yapilanislem='Hakkımda bölümü Güncellendi',uye_id='$uye_id'";
+			$sistemkayit=mysqli_query($baglan,$sistemkayitsql);
+			message("success","check"," Başarılı", "Güncelleme Başarılı");
+			header("Refresh:3; url = http://localhost/proje/login/yonetici.php?do=hakkimda_duzenle", true, 303);
+		}else{
+			message("warning","exclamation-triangle"," Başarısız", "Güncelleme Başarısız");
+		}
+	}
+?>
+<div class="row">
+<div class="col-md-3">
+	<div class="card card-primary card-outline mt-4">
+              <div class="card-body box-profile">
+                <div class="text-center">
+                  <img class="profile-user-img img-fluid img-circle"
+                       src="upload/hakkimda/<?php echo $duzenlesatir["hakkimda_gorsel"]; ?>"
+					   style="width:200px !important; height:250px !important;" />
+                </div>
+				</div>
+				</div>
+</div>
+<div class="col-md-9">
+<div class="card card-primary mt-4">
+              <div class="card-header">
+                <h3 class="card-title">Hakkımızda</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form method="POST" enctype="multipart/form-data">
+                <div class="card-body">
+				  
+				  <div class="form-group">
+                    <label class="col-form-label" for="inputSuccess">Hakkımda Başlık</label>
+                    <input type="text" class="form-control" name="hakkimda_baslik" maxlength="50" value="<?php echo $duzenlesatir["hakkimda_baslik"]; ?>">
+                  </div>
+				  <div class="form-group">
+                    <label class="col-form-label" for="inputSuccess">Hakkımda Açıklama</label>
+                    <input type="text" class="form-control" name="hakkimda_aciklama" maxlength="1000" value="<?php echo $duzenlesatir["hakkimda_aciklama"]; ?>">
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleInputFile">Hakkımda Fotoğraf</label>
+                    <div class="input-group">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" name="dosya1" id="exampleInputFile" multiple>
+                        <label class="custom-file-label" for="exampleInputFile">Dosya Seçin</label>
+                      </div>
+                    </div>
+					<small class="text-muted">Hakkımda için fotoğraf boyutlarına dikkat ediniz.(Genişlik:650&nbsp;-&nbsp;Yükseklik:387)</small>
+                  </div>
+				  <div class="form-group">
+                    <label class="col-form-label">Şifrenizi Giriniz</label>
+                    <input type="password" class="form-control" name="sifre" placeholder="Şifrenizi Giriniz." required>
+                  </div>
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer" align="right">
+                  <button type="submit" class="btn btn-primary">Güncelle</button>
+                </div>
+              </form>
+    </div>
+  </div>
+</div>
+<?php
+} else {
+		message("danger","ban"," Başarısız", "Bu Sayfa İşlem Yapmak İçin Yetkiniz Yok. Lütfen bekleyiniz Yönetici sayfasını yönlendirliyorsunuz");
+		header("Refresh:3; url = http://localhost/proje/login/yonetici.php?do=anasayfa", true, 303);
+    }
+?>
+</div>

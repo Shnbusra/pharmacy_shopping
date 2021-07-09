@@ -1,0 +1,10 @@
+@font-face {
+	font-family: 'Facile Sans';
+	src:url('Facile-Sans.eot');
+	src:url('Facile-Sans.eot?#iefix') format('embedded-opentype'),
+		url('Facile-Sans.woff') format('woff'),
+		url('Facile-Sans.ttf') format('truetype'),
+		url('Facile-Sans.svg#Facile-Sans') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
